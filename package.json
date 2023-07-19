@@ -1,0 +1,35 @@
+{
+  "name": "investic-client",
+  "version": "1.0.0",
+  "description": "Client of Investic project.",
+  "author": "https://github.com/divinoPV",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ../tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ../tsconfig.json --watch",
+    "lint": "prettier --plugin-search-dir . --check . && eslint .",
+    "format": "prettier --plugin-search-dir . --write ."
+  },
+  "devDependencies": {
+    "@fontsource/fira-mono": "^5.0.5",
+    "@neoconfetti/svelte": "^1.0.0",
+    "@sveltejs/adapter-node": "^1.3.1",
+    "@sveltejs/kit": "^1.22.3",
+    "@types/cookie": "^0.5.1",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.1.0",
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-svelte": "^2.32.2",
+    "prettier": "^3.0.0",
+    "prettier-plugin-svelte": "^3.0.0",
+    "svelte": "^4.1.0",
+    "svelte-check": "^3.4.6",
+    "tslib": "^2.6.0",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.4"
+  }
+}

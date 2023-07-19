@@ -1,0 +1,21 @@
+version: "3"
+
+networks:
+  mongo_investic-network:
+    external: true
+
+services:
+  investic-client-service:
+    build:
+      args:
+        CLIENT_CONTAINER_PORT: "${CLIENT_CONTAINER_PORT}"
+        NODE_VERSION: "${NODE_VERSION}"
+      context: "."
+      dockerfile: "docker/dev/Dockerfile"
+    container_name: "investic-client-container"
+    networks:
+      - "mongo_investic-network"
+    ports:
+      - "${CLIENT_HOST_PORT}:${CLIENT_CONTAINER_PORT}"
+    volumes:
+      - ".:/client"
