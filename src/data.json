@@ -1,0 +1,59 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Paris 1st Arrondissement"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [2.334196, 48.863153],
+            [2.339885, 48.862073],
+            [2.339617, 48.859081],
+            [2.331961, 48.860388],
+            [2.334196, 48.863153]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Paris 2nd Arrondissement"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [2.339542, 48.868554],
+            [2.345474, 48.866685],
+            [2.347073, 48.863916],
+            [2.342400, 48.863020],
+            [2.339542, 48.868554]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Paris 3rd Arrondissement"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [2.358548, 48.861502],
+            [2.363358, 48.860427],
+            [2.363449, 48.857118],
+            [2.359053, 48.857606],
+            [2.358548, 48.861502]
+          ]
+        ]
+      }
+    }
+  ]
+}
