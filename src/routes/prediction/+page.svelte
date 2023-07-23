@@ -1,20 +1,88 @@
+<div class="prediction">
+    <form on:submit|preventDefault={handleSubmit}>
+        {#if !isPredictingByDate}
+            <button type="button" on:click={() => isPredictingByDate = true} style="margin: 21px 0;">Prédire par date</button>
+        {:else}
+            <button type="button" on:click={() => isPredictingByDate = false} style="margin: 21px 0;">Ne plus prédire par date</button>
+        {/if}
+        <label>
+            Code postal:
+            <input type="number" bind:value={zipCode} required/>
+        </label>
+        <label>
+            Code type local:
+            <input type="number" bind:value={typeLocalCode} required/>
+        </label>
+        <label>
+            Nombre de pièces principales:
+            <input type="number" bind:value={nbRooms} required/>
+        </label>
+        <label>
+            Nombre de lots:
+            <input type="number" bind:value={nbLots} required/>
+        </label>
+        <label>
+            Surface réelle bâtie:
+            <input type="number" bind:value={actualFloorArea} required/>
+        </label>
+        <label>
+            Surface terrain:
+            <input type="number" bind:value={groundArea} required/>
+        </label>
+        {#if isPredictingByDate}
+            <div>
+                <label>
+                    Année(s):
+                    <input type="number" bind:value={year} min="1900" max="2099"/>
+                </label>
+                <label>
+                    Mois:
+                    <input type="number" bind:value={month} min="1" max="12"/>
+                </label>
+                <label>
+                    Jour(s):
+                    <input type="number" bind:value={day} min="1" max="31"/>
+                </label>
+            </div>
+        {/if}
+        {#if predictionResult}
+            <div class="modal" style={modalIsVisible ? 'display: block;' : 'display: none;'}>
+                <div class="modal-content">
+                    <span class="close" on:click={closeModal}>&times;</span>
+                    <h2>Résultat de la prédiction :</h2>
+                    <pre style="color: red; font-weight: bold;">{formatPrice(predictionResult.prediction)} €</pre>
+                </div>
+            </div>
+        {/if}
+        {#if isSubmitting}
+            <button type="submit" disabled>En cours...</button>
+        {:else}
+            <button type="submit">Soumettre</button>
+        {/if}
+    </form>
+</div>
+
 <script>
-    let numStreet = '';
     let zipCode = '';
-    let depCode = '';
     let typeLocalCode = '';
     let nbRooms = '';
     let nbLots = '';
     let actualFloorArea = '';
     let groundArea = '';
 
+    let year = null;
+    let month = null;
+    let day = null;
+
     let predictionResult = null;
     let isSubmitting = false;
+    let isPredictingByDate = false;
+    let modalIsVisible = false;
 
     function handleSubmit() {
         isSubmitting = true;
 
-        const apiUrl = `http://localhost:8000/predict?num_street=${numStreet}&zip_code=${zipCode}&dep_code=${depCode}&type_local_code=${typeLocalCode}&nb_rooms=${nbRooms}&nb_lots=${nbLots}&actual_floor_area=${actualFloorArea}&ground_area=${groundArea}`;
+        const apiUrl = `http://localhost:8000/predict?num_street=1&zip_code=${zipCode}&dep_code=${zipCode.toString().slice(0, 2)}&type_local_code=${typeLocalCode}&nb_rooms=${nbRooms}&nb_lots=${nbLots}&actual_floor_area=${actualFloorArea}&ground_area=${groundArea}`;
 
         fetch(apiUrl, {
             method: "GET",
@@ -34,8 +102,6 @@
                 isSubmitting = false;
             });
     }
-
-    let modalIsVisible = false;
 
     function showModal(data) {
         predictionResult = data;
@@ -58,60 +124,32 @@
         const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
         return `${formattedIntegerPart}.${decimalPart}`;
-    };
+    }
+
+    function handlePredictByDate() {
+        isSubmitting = true;
+
+        const apiUrl = `http://localhost:8000/predict_date?num_street=1&zip_code=${zipCode}&dep_code=${zipCode.toString().slice(0, 2)}&type_local_code=${typeLocalCode}&nb_rooms=${nbRooms}&nb_lots=${nbLots}&actual_floor_area=${actualFloorArea}&ground_area=${groundArea}&year=${year}&month=${month}&day=${day}`;
+
+        fetch(apiUrl, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                "accept": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                predictionResult = data;
+                showModal(data);
+                isSubmitting = false;
+            })
+            .catch(error => {
+                console.error(error);
+                isSubmitting = false;
+            });
+    }
 </script>
-
-<div class="prediction">
-    <form on:submit|preventDefault={handleSubmit}>
-        <label>
-            No voie:
-            <input type="number" bind:value={numStreet} required/>
-        </label>
-        <label>
-            Code postal:
-            <input type="number" bind:value={zipCode} required/>
-        </label>
-        <label>
-            Code département:
-            <input type="number" bind:value={depCode} required/>
-        </label>
-        <label>
-            Code type local:
-            <input type="number" bind:value={typeLocalCode} required/>
-        </label>
-        <label>
-            Nombre de pièces principales:
-            <input type="number" bind:value={nbRooms} required/>
-        </label>
-        <label>
-            Nombre de lots:
-            <input type="number" bind:value={nbLots} required/>
-        </label>
-        <label>
-            Surface réelle bâtie:
-            <input type="number" bind:value={actualFloorArea} required/>
-        </label>
-        <label>
-            Surface terrain:
-            <input type="number" bind:value={groundArea} required/>
-        </label>
-
-        {#if isSubmitting}
-            <button type="submit" disabled>En cours...</button>
-        {:else}
-            <button type="submit">Soumettre</button>
-        {/if}
-    </form>
-    {#if predictionResult}
-        <div class="modal" style={modalIsVisible ? 'display: block;' : 'display: none;'}>
-            <div class="modal-content">
-                <span class="close" on:click={closeModal}>&times;</span>
-                <h2>Résultat de la prédiction :</h2>
-                <pre style="color: red; font-weight: bold;">{formatPrice(predictionResult.prediction)} €</pre>
-            </div>
-        </div>
-    {/if}
-</div>
 
 <style>
     body {
