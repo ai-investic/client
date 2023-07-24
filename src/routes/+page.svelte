@@ -18,7 +18,7 @@
         map = new google.maps.Map(mapContainer, options);
     }
 
-    const formatPrice = (priceString) => {
+    const formatNumber = (priceString) => {
         const price = parseFloat(priceString);
 
         if (isNaN(price)) {
@@ -48,10 +48,10 @@
 
         const infoWindow = new google.maps.InfoWindow({
             content: `
-              <div>
-                <h3>${name_param}</h3>
-                <p>Traitement en cours...</p>
-              </div>
+                  <div>
+                        <h3>${name_param}</h3>
+                        <p>Traitement en cours...</p>
+                  </div>
             `,
         });
 
@@ -60,28 +60,129 @@
         infoWindow.setPosition(getPolygonCenter(polygon));
         infoWindow.open(map);
 
-        let property_value;
+        let content;
         try {
             const data = await graphQLClient.request(
                 gql`
-                    query GetCityAvgPropertyValue($municipality: String) {
-                      getCityAvgPropertyValue(municipality: $municipality)
+                    query GetCityPropertyStats($municipality: String) {
+                          getCityPropertyStats(municipality: $municipality) {
+                                Appartement {
+                                      avgPrice
+                                      avgRooms
+                                      avgBuiltArea
+                                      avgLandArea
+                                      maxPrice
+                                      maxRooms
+                                      maxBuiltArea
+                                      maxLandArea
+                                      minPrice
+                                      minRooms
+                                      minBuiltArea
+                                      minLandArea
+                                }
+                                land {
+                                      avgPrice
+                                      avgRooms
+                                      avgBuiltArea
+                                      avgLandArea
+                                      maxPrice
+                                      maxRooms
+                                      maxBuiltArea
+                                      maxLandArea
+                                      minPrice
+                                      minRooms
+                                      minBuiltArea
+                                      minLandArea
+                                }
+                                Maison {
+                                      avgPrice
+                                      avgRooms
+                                      avgBuiltArea
+                                      avgLandArea
+                                      maxPrice
+                                      maxRooms
+                                      maxBuiltArea
+                                      maxLandArea
+                                      minPrice
+                                      minRooms
+                                      minBuiltArea
+                                      minLandArea
+                                }
+                          }
                     }
                 `,
                 {"municipality": name_param},
             );
 
-            property_value = `En moyenne une propriété coûte ${formatPrice(data.getCityAvgPropertyValue)} € dans cette ville.`;
-        } catch (error) {
-            property_value = "Nous ne possédons pas suffissament de données pour traiter cette ville.";
-        }
+            const propertyStats = data.getCityPropertyStats;
 
-        const content = `
-            <div>
-              <h3>${name_param}</h3>
-              <p>${property_value}</p>
-            </div>
-        `;
+            content = `
+                  <div>
+                        <h3>${name_param}</h3>
+                        <h4>Appartement</h4>
+                        <h5>Moyenne</h5>
+                        <span>
+                            Le prix moyen d'un appartement à ${name_param} est de ${formatNumber(propertyStats.Appartement.avgPrice)}€.
+                            Il possède en moyenne ${formatNumber(propertyStats.Appartement.avgRooms)} pièces principales pour une surface de
+                            ${formatNumber(propertyStats.Appartement.avgBuiltArea)} m2 et un terrain de ${formatNumber(propertyStats.Appartement.avgLandArea)} m2.
+                        </span>
+                        <h5>Le plus cher</h5>
+                        <span>
+                            L'appartement le plus cher de ${name_param} est de ${formatNumber(propertyStats.Appartement.maxPrice)} €.
+                            Il possède en moyenne ${formatNumber(propertyStats.Appartement.maxRooms)} pièces principales pour une surface de
+                            ${formatNumber(propertyStats.Appartement.maxBuiltArea)} m2 et un terrain de ${formatNumber(propertyStats.Appartement.maxLandArea)} m2.
+                        </span>
+                        <h5>Le moins cher</h5>
+                        <span>
+                            L'appartement le moins cher de ${name_param} est de  ${formatNumber(propertyStats.Appartement.minPrice)} €.
+                            Il possède en moyenne ${formatNumber(propertyStats.Appartement.minRooms)} pièces principales pour une surface de
+                            ${formatNumber(propertyStats.Appartement.minBuiltArea)} m2 et un terrain de ${formatNumber(propertyStats.Appartement.minLandArea)} m2.
+                        </span>
+                        <h4>Maison</h4>
+                        <h5>Moyenne</h5>
+                        <span>
+                            Le prix moyen d'une maison à ${name_param} est de ${formatNumber(formatNumber(propertyStats.Maison.avgPrice))}€.
+                            Elle possède en moyenne ${formatNumber(propertyStats.Maison.avgRooms)} pièces principales pour une surface de
+                            ${formatNumber(propertyStats.Maison.avgBuiltArea)} m2 et un terrain de ${formatNumber(propertyStats.Maison.avgLandArea)} m2.
+                        </span>
+                        <h5>Le plus cher</h5>
+                        <span>
+                            La maison la plus chère de ${name_param} est de ${formatNumber(formatNumber(propertyStats.Maison.maxPrice))} €.
+                            Elle possède en moyenne ${formatNumber(propertyStats.Maison.maxRooms)} pièces principales pour une surface de
+                            ${formatNumber(propertyStats.Maison.maxBuiltArea)} m2 et un terrain de ${formatNumber(propertyStats.Maison.maxLandArea)} m2.
+                        </span>
+                        <h5>Le moins cher</h5>
+                        <span>
+                            La maison la moins chère de ${name_param} est de  ${formatNumber(propertyStats.Maison.minPrice)} €.
+                            Il possède en moyenne ${formatNumber(propertyStats.Maison.minRooms)} pièces principales pour une surface de
+                            ${formatNumber(propertyStats.Maison.minBuiltArea)} m2 et un terrain de ${formatNumber(propertyStats.Maison.minLandArea)} m2.
+                        </span>
+                        <h4>Terrain</h4>
+                        <h5>Moyenne</h5>
+                        <span>
+                            Le prix moyen d'un terrain à ${name_param} est de ${formatNumber(propertyStats.land.avgPrice)}€
+                            pour une surface de ${formatNumber(propertyStats.land.avgLandArea)} m2.
+                        </span>
+                        <h5>Le plus cher</h5>
+                        <span>
+                            Le terrain le plus cher de ${name_param} est de ${formatNumber(propertyStats.land.maxPrice)} €.
+                            pour une surface de ${formatNumber(propertyStats.land.maxLandArea)} m2.
+                        </span>
+                        <h5>Le moins cher</h5>
+                        <span>
+                            Le terrain le moins cher de ${name_param} est de  ${formatNumber(propertyStats.land.minPrice)} €.
+                            pour une surface de ${formatNumber(propertyStats.land.minLandArea)} m2.
+                        </span>
+                  </div>
+            `;
+        } catch (error) {
+            content = `
+                  <div>
+                        <h3>${name_param}</h3>
+                        <p>Nous ne possédons pas suffisamment de données pour traiter cette ville.</p>
+                  </div>
+            `;
+        }
 
         infoWindow.setContent(content);
     }
@@ -246,7 +347,7 @@
                         for (const municipality of data.municipalitiesByDep) {
                             const geometryType = municipality.geometry.type;
                             const coordinates = municipality.geometry.coordinates;
-                            console.log(municipality)
+
                             if (geometryType === "Polygon") {
                                 addMunicipalityPolygon(
                                     coordinates[0].map(([lng, lat]) => ({lat, lng})),
@@ -263,7 +364,6 @@
                         }
                     })
                     .catch(error => {
-                        console.log(error);
                         throw error;
                     })
                 ;
@@ -271,7 +371,6 @@
         }
 
         processElements();
-
     });
 </script>
 
